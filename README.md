@@ -35,9 +35,9 @@ of different Zabbix items and graphs.  Link it to your Riak servers to start col
 
 A preconfigured Zabbix server AMI is available: 
 
-AMI ID: ami-05063c6c
-SSH username: ec2-user
-Zabbix user/pass: admin/zabbix
+* AMI ID: ami-05063c6c
+* SSH username: ec2-user
+* Zabbix user/pass: admin/zabbix
 
 
 To configure the Zabbix agent to autoregister with the Zabbix server AMI, set the ServerActive parameter in /etc/zabbix/zabbix_agentd.conf to your Zabbix server IP. 
