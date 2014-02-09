@@ -26,7 +26,6 @@ This file should be placed in /etc/zabbix-agent.d/riak.conf.  All it does is def
 	
 ## riak_zabbix_template.xml
 
-
 Importing this file will create a Riak template in your Zabbix installation with a number 
 of different Zabbix items and graphs.  Link it to your Riak servers to start collect metrics.	
 
@@ -34,9 +33,19 @@ of different Zabbix items and graphs.  Link it to your Riak servers to start col
 
 # Configure monitoring
 
-By change the interval of the riak.collector item, you can control the frequency of the stats collection:
+A preconfigured Zabbix server AMI is available: 
+
+AMI ID: ami-05063c6c
+SSH username: ec2-user
+Zabbix user/pass: admin/zabbix
+
+
+To configure the Zabbix agent to autoregister with the Zabbix server AMI, set the ServerActive parameter in /etc/zabbix/zabbix_agentd.conf to your Zabbix server IP. 
+
+
+By changing the interval of the riak.collector item, you can control the frequency of the stats collection:
 
 ![image](images/zabbix-riak.collector.png)
 
 
-Currently this script pushes all data found in the Riak stats enviornment to Riak, but only the items registered in the template with make it into Zabbix. If you want to take a peak at other items to add to the Riak template, please take a look at /tmp/riak_stats.txt on one of the Riak nodes.
+Currently this script pushes all metric data found in the Riak stats enviornment to Zabbix. If you do not want to monitor all metrics, they can be removed from the Riak host template in Zabbix.
