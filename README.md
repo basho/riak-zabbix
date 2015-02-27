@@ -1,51 +1,84 @@
-# Monitoring Riak with Zabbix
+riak_zabbix
+===========
 
-This document describes how to use the files included in this repository to monitor your Riak infrastructure.
+#### Zabbix plugin for Riak
 
-Here is a description of the following components:
+#####Contains:
 
+* userparameter_riak.conf
+	* Agent Configuration
 
-## riak_stats.py
+* zabbix_agent_template_riak.xml
+	* Templates for:
+		* Agent Items
+		* Graphs
+		* Triggers
 
-This script should be placed in /usr/local/bin.  It performs the following actions:
+##### Usage:
 
-1. collects information from the Riak stats JSON interface
-2. compiles those stats in a format that is acceptable for zabbix_sender
-3. writes a temporary file to /tmp/riak_stats.txt
-4. calls zabbix sender program to send data to zabbix server
+Install userparameter_riak.conf to zabbix agent conf dir:
 
-zabbix_sender requires a hostname as one of the arguments.  This script will attempt to determine the zabbix hostname as defined in zabbix-agentd.conf by using the confobj python module.  If that module is not installed, it will use the platform.node() python call to determine the hostname.
+	cp templates/userparameter_riak.conf /etc/zabbix/zabbix_agentd.conf.d/
 
+Add the following line to riak's crontab entry*:
 
+	sudo crontab -u riak -e
 
-## riak.conf
+	* * * * * /usr/sbin/riak-admin status > /var/lib/riak/riak-admin_status.new && mv /var/lib/riak/riak-admin_status.new /var/lib/riak/riak-admin_status.tmp
 
-This file should be placed in /etc/zabbix-agent.d/riak.conf.  All it does is define a UserParameter to call the riak_stats.py script:
+Restart the zabbix agent
 
-	UserParameter=riak.collector, /usr/local/bin/riak_stats.py
-	
-## riak_zabbix_template.xml
+\* Why crontab, and why so ugly?? We're using crontab so the zabbix client doesn't have to run under escalated privileges. The hacky ```>``` then ```mv``` is to eliminate the agent from attempting to read the ```tmp``` file *while* riak-admin is running, causing erroneous ```NULL``` results.
 
-Importing this file will create a Riak template in your Zabbix installation with a number 
-of different Zabbix items and graphs.  Link it to your Riak servers to start collect metrics.	
+##### Building:
 
+The items are listed in the ```stats_file```, add and remove those as needed. Execute ```./build_templates.sh``` to rebuild agent config and template xml file.
 
+The logic & custom graphs are defined in the build_template.sh script. Here is the code at this moment, for an idea how they're broken up:
 
-# Configure monitoring
+	for graph in $(grep '_median$' $STAT_LIST); do
+	  title=${graph//_median/}
+	  items=$(grep "^$title" $STAT_LIST)
 
-A preconfigured Zabbix server AMI is available: 
+	  print_graph "$title" items[@]
 
-* AMI ID: ami-05063c6c
-* SSH username: ec2-user
-* Zabbix user/pass: admin/zabbix
+	  outliers=()
+	  possible_outliers=($title"_95" $title"_99" $title"_100")
+	  for outlier in ${possible_outliers[@]}; do
+	    if grep $outlier $STAT_LIST > /dev/null; then
+	      outliers+=($outlier)
+	    fi
+	  done
+	  print_graph "$title""_outliers" outliers[@]
 
+	done
 
-To configure the Zabbix agent to autoregister with the Zabbix server AMI, set the ServerActive parameter in /etc/zabbix/zabbix_agentd.conf to your Zabbix server IP. 
+	for graph in $(grep '_gets_' $STAT_LIST); do
+	  title=${graph//_gets_/_gets_and_puts_}
+	  items=( $graph ${graph//_gets_/_puts_} )
 
+	  print_graph "$title" items[@]
 
-By changing the interval of the riak.collector item, you can control the frequency of the stats collection:
+	done
 
-![image](images/zabbix-riak.collector.png)
+	items=( search_index_throughput_count search_query_throughput_count )
+	print_graph "search-query_index_throughput" items[@]
 
+Execute ```build_templates.sh``` to rebuild the userparameter and xml files.
 
-Currently this script pushes all metric data found in the Riak stats enviornment to Zabbix. If you do not want to monitor all metrics, they can be removed from the Riak host template in Zabbix.
+##### Testing
+
+The included ```Vagrantfile``` will spin up an ubuntu VM, install Riak & Docker, and then pull the ```berngp/docker-zabbix``` [https://github.com/berngp/docker-zabbix](https://github.com/berngp/docker-zabbix) image to test the templates.
+
+###### Example:
+
+	vagrant up
+	vagrant ssh -- -L8080:localhost:80 -L8087:localhost:8087
+
+Visit [http://localhost:8080/zabbix/](http://localhost:8080/zabbix/)
+
+In Zabbix, go to Configuration -> Templates, and in the upper right, select 'Import', and choose the ```templates/zabbix_agent_template_riak.xml``` template.
+
+Create a host with the vagrant VM's ```docker0``` ip ( i.e. ```172.17.42.1```), and the Riak template.
+
+Perform some operations on Riak via the pb buffer to generate stats.
