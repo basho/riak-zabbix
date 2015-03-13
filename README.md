@@ -77,8 +77,24 @@ The included ```Vagrantfile``` will spin up an ubuntu VM, install Riak & Docker,
 
 Visit [http://localhost:8080/zabbix/](http://localhost:8080/zabbix/)
 
-In Zabbix, go to Configuration -> Templates, and in the upper right, select 'Import', and choose the ```templates/zabbix_agent_template_riak.xml``` template.
+Log into Zabbix (default user is `Admin`, password is `zabbix`); Go to Configuration -> Templates, and in the upper right, select 'Import', and choose the ```templates/zabbix_agent_template_riak.xml``` template.
 
-Create a host with the vagrant VM's ```docker0``` ip ( i.e. ```172.17.42.1```), and the Riak template.
+Create a host with the vagrant VM's ```docker0``` ip ( i.e. ```172.17.42.1```), and the Riak template using the following steps:
 
-Perform some operations on Riak via the pb buffer to generate stats.
+1. Run `ifconfig | grep -A1 'docker0' | grep -v docker0 | cut -d \  -f 12 | cut -d : -f 2` to quickly find the ip for the new host.
+2. Navigate to Configuration -> Hosts -> Create Host in the Zabbix interface.
+3. Name the host something like `Riak Zabbix`.
+4. Add the group `Zabbix servers` in the Groups field.
+5. In the Agent interfaces field, copy the docker0 ip from step 1 into the IP address section.
+6. Click the Templates tab.
+7. In the search box, type Riak and select the auto-suggested template that was previously added.
+8. Click the `add` link below the search box.
+9. Click the `Add` button to finish adding the host.
+
+Perform some operations via Riak's protobuf interface to generate stats. To view an example graph, follow these steps:
+
+1. Navigate to Monitoring -> Graphs.
+2. In the Group / Host / Graph selection in the top right, select `Zabbix Servers`, `Riak Zabbix`, and `Node Put FSM Time`.
+3. Click the plus sign in the upper right to add this graph to favorites.
+
+
