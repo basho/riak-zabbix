@@ -187,7 +187,7 @@ print_graph_item(){
                     <drawtype>0</drawtype>
                     <color>$3</color>
                     <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
+                    <calc_fnc>4</calc_fnc>
                     <type>0</type>
                     <item>
                         <host>Riak</host>
