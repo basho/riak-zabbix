@@ -36,9 +36,7 @@ function pp_name(){
   IFS='_' read -a words <<< "$1"
   local pp_words=()
   for word in ${words[@]}; do
-    if [ $word != "total" ]; then
-      pp_words+=($(echo ${word:0:1} | tr  '[a-z]' '[A-Z]')${word:1})
-    fi
+    pp_words+=($(echo ${word:0:1} | tr  '[a-z]' '[A-Z]')${word:1})
   done
   echo ${pp_words[@]}
 }
@@ -265,9 +263,9 @@ for graph in $(grep '_median$' $STAT_LIST); do
 
 done
 
-for graph in $(grep '_gets_' $STAT_LIST); do
-  title=${graph//_gets_/_gets_and_puts_}
-  items=( $graph ${graph//_gets_/_puts_} )
+for graph in $(grep '_gets' $STAT_LIST); do
+  title=${graph//_gets/_gets_and_puts}
+  items=( $graph ${graph//_gets/_puts} )
 
   print_graph "$title" items[@]
 
