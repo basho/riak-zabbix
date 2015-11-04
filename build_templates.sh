@@ -36,11 +36,9 @@ function pp_name(){
   IFS='_' read -a words <<< "$1"
   local pp_words=()
   for word in ${words[@]}; do
-    if [ $word != "total" ]; then
-      pp_words+=($(echo ${word:0:1} | tr  '[a-z]' '[A-Z]')${word:1})
-    fi
+    pp_words+=($(echo ${word:0:1} | tr  '[a-z]' '[A-Z]')${word:1})
   done
-  echo ${pp_words[@]}
+  echo ${pp_words[@]} | sed -e 's/Time$/Time(ms)/'
 }
 
 print_tpl_head(){
@@ -189,7 +187,7 @@ print_graph_item(){
                     <drawtype>0</drawtype>
                     <color>$3</color>
                     <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
+                    <calc_fnc>4</calc_fnc>
                     <type>0</type>
                     <item>
                         <host>Riak</host>
@@ -265,9 +263,9 @@ for graph in $(grep '_median$' $STAT_LIST); do
 
 done
 
-for graph in $(grep '_gets_' $STAT_LIST); do
-  title=${graph//_gets_/_gets_and_puts_}
-  items=( $graph ${graph//_gets_/_puts_} )
+for graph in $(grep '_gets' $STAT_LIST); do
+  title=${graph//_gets/_gets_and_puts}
+  items=( $graph ${graph//_gets/_puts} )
 
   print_graph "$title" items[@]
 
