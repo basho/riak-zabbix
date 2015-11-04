@@ -38,7 +38,7 @@ function pp_name(){
   for word in ${words[@]}; do
     pp_words+=($(echo ${word:0:1} | tr  '[a-z]' '[A-Z]')${word:1})
   done
-  echo ${pp_words[@]}
+  echo ${pp_words[@]} | sed -e 's/Time$/Time(ms)/'
 }
 
 print_tpl_head(){

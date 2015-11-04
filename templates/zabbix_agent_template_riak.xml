@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-11-03T18:18:19Z</date>
+    <date>2015-11-03T19:33:45Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -4362,7 +4362,7 @@
             </graph_items>
         </graph>
         <graph>
-            <name>Node Get Fsm Time</name>
+            <name>Node Get Fsm Time(ms)</name>
             <width>900</width>
             <height>200</height>
             <yaxismin>0.0000</yaxismin>
@@ -4498,7 +4498,7 @@
             </graph_items>
         </graph>
         <graph>
-            <name>Node Put Fsm Time</name>
+            <name>Node Put Fsm Time(ms)</name>
             <width>900</width>
             <height>200</height>
             <yaxismin>0.0000</yaxismin>
@@ -4906,7 +4906,7 @@
             </graph_items>
         </graph>
         <graph>
-            <name>Vnode Get Fsm Time</name>
+            <name>Vnode Get Fsm Time(ms)</name>
             <width>900</width>
             <height>200</height>
             <yaxismin>0.0000</yaxismin>
@@ -5042,7 +5042,7 @@
             </graph_items>
         </graph>
         <graph>
-            <name>Vnode Put Fsm Time</name>
+            <name>Vnode Put Fsm Time(ms)</name>
             <width>900</width>
             <height>200</height>
             <yaxismin>0.0000</yaxismin>
